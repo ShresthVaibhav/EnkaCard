@@ -2,6 +2,11 @@ from PIL import Image,ImageChops,ImageFilter
 from ...utils import pill, git
 import asyncio
 
+try:
+    from enkacard.namecard_ctx import get_namecard_bg as _get_nc_bg, nc_cover as _nc_cover
+except ImportError:
+    def _get_nc_bg(): return None
+    def _nc_cover(nc, w, h): return nc.resize((w, h), Image.LANCZOS).convert("RGBA")
 
 _of = git.ImageCache()
 
@@ -13,7 +18,11 @@ class Background:
         
     async def get_element_color(self):
         self.element_color = pill.element_color.get(self.element, (149,107,5,255))
-        self.background_grandient = Image.new("RGBA", (1950, 813), self.element_color)
+        nc = _get_nc_bg()
+        if nc is not None:
+            self.background_grandient = _nc_cover(nc, 1950, 813)
+        else:
+            self.background_grandient = Image.new("RGBA", (1950, 813), self.element_color)
         
 
     async def add_overlay(self):
@@ -26,7 +35,11 @@ class Background:
             self.grandient = await pill.GradientGenerator(self.img).generate(1, 813)
             self.grandient = self.grandient.resize((1950, 813)).convert("RGBA")
         else:
-            self.grandient = Image.new("RGBA", (1950, 813), self.element_color)
+            nc = _get_nc_bg()
+            if nc is not None:
+                self.grandient = _nc_cover(nc, 1950, 813)
+            else:
+                self.grandient = Image.new("RGBA", (1950, 813), self.element_color)
             
         userImages_opacity = await pill.apply_opacity(self.img, opacity=0.6)
         if self.element is None:
@@ -64,7 +77,8 @@ class Background:
             self.img = await pill.get_centr_honkai_art((798,821),self.img)
     
     async def start(self):
-        self.img = await pill.get_dowload_img(self.img)   
+        if not isinstance(self.img, Image.Image):
+            self.img = await pill.get_dowload_img(self.img)
         if not self.element is None:
             await self.get_element_color()
         else:

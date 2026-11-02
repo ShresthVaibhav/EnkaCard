@@ -12,6 +12,7 @@ from more_itertools import chunked
 from cachetools import TTLCache
 from collections import namedtuple
 from math import sqrt
+from . import fallback as asset_fallback
 
 
 __all__ = (
@@ -121,7 +122,11 @@ async def get_dowload_img(link,size = None, thumbnail_size = None):
     except:
         raise
     
-    image = Image.open(BytesIO(image)).convert("RGBA")
+    try:
+        image = Image.open(BytesIO(image)).convert("RGBA")
+        asset_fallback.remember(link, image)
+    except Exception:
+        image = await asset_fallback.recover(link, _fetch_bytes, size)
     if size:
         image = image.resize(size)
         cache[cache_key] = image
@@ -538,3 +543,9 @@ class GradientGenerator:
     
     def _get_interpolated_color(self, start_color, end_color, ratio):
         return tuple(int(start_color[i] + (end_color[i] - start_color[i]) * ratio) for i in range(3))
+
+
+async def _fetch_bytes(url):
+    async with aiohttp.ClientSession() as session, session.get(url) as resp:
+        resp.raise_for_status()
+        return await resp.read()

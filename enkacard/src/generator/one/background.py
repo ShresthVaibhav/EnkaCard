@@ -2,6 +2,11 @@ from PIL import Image,ImageChops
 from ...utils import pill, git
 import asyncio
 
+try:
+    from enkacard.namecard_ctx import get_namecard_bg as _get_nc_bg, nc_cover as _nc_cover
+except ImportError:
+    def _get_nc_bg(): return None
+    def _nc_cover(nc, w, h): return nc.resize((w, h), Image.LANCZOS).convert("RGBA")
 
 _of = git.ImageCache()
 
@@ -47,11 +52,16 @@ class Background:
         self.background.alpha_composite(shadow)
         
     async def start(self):
-        self.mask =  await _of.maska_art 
+        self.mask =  await _of.maska_art
         self.mask = self.mask.convert("L")
-        self.img = await pill.get_dowload_img(self.img)
+        if not isinstance(self.img, Image.Image):
+            self.img = await pill.get_dowload_img(self.img)
         await self.get_element_color()
-        self.background = Image.new("RGBA", (1511, 1301), self.element_color)
+        nc = _get_nc_bg()
+        if nc is not None:
+            self.background = _nc_cover(nc, 1511, 1301)
+        else:
+            self.background = Image.new("RGBA", (1511, 1301), self.element_color)
         await asyncio.gather(self.add_overlay(),self.creat_art())
         await self.add_mask()
         await self.add_shadow()

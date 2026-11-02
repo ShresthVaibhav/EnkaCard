@@ -9,11 +9,6 @@ import random
 _of = git.ImageCache()
 
 
-
-
-
-
-
 class Creat:
     def __init__(self,characters,lang,img,hide,uid,name) -> None:
         self.character = characters
@@ -102,7 +97,9 @@ class Creat:
         akashaElement = False
         data_user = []
         
-        dataAkasha = await AkashaCreat().get_info_character(self.character.id)
+        dataAkasha = await AkashaCreat(uid = self.uid).get_info_character(self.character.id)
+        if dataAkasha == []:
+            dataAkasha = {}
         if dataAkasha != {}:
             dataAkasha  = dataAkasha[random.choice(list(dataAkasha.keys()))]['stats']
         dataAkasha_new = []
@@ -211,6 +208,11 @@ class Creat:
         await self.add_logo()
     
     async def start(self,snow):
+        try:
+            from enkacard.namecard_ctx import fetch_and_set_for_char
+            await fetch_and_set_for_char(self.character.id)
+        except Exception:
+            pass
         await asyncio.gather(self.collect_background(),self.collect_weapon(),self.collect_constant(),self.collect_artifact(),self.collect_sets(),self.creat_name(),
                              self.creat_name_user(),self.creat_diagram(),self.creat_stat(),self.creat_skill())
         

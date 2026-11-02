@@ -2,17 +2,19 @@ import asyncio
 import random
 from PIL import ImageDraw,Image,ImageChops
 from ..utils import pill, git, options
+from .profile_teample_one import pfp_data
 
 _of = git.ImageCache()
 
 class ProfileCard:
-    def __init__(self,profile,lang,img,hide,uid,background) -> None:
+    def __init__(self,profile,lang,img,hide,uid,background,compare) -> None:
         self.profile = profile
         self.lang = lang
         self.img = img
         self.hide = hide
         self.uid = uid
         self.background = background
+        self.compare=compare
     
     
     async def creat_background(self):
@@ -31,8 +33,8 @@ class ProfileCard:
         self.background_profile.paste(background_image,(0,0),maska.convert("L"))
         self.background_profile.alpha_composite(frame)
 
+
     async def creat_charter(self,key):
-        
         charter_profile = Image.new("RGBA", (147, 211), (0,0,0,50))
         if not self.img is None:
             if str(key.id) in self.img:
@@ -57,20 +59,28 @@ class ProfileCard:
     
     async def get_charter(self):
         task = []
-        for key in self.profile.characters_preview[:8]:
-            task.append(self.creat_charter(key))
+        if self.compare:
+            for key in self.profile.characters_preview:
+                if key.id in self.compare:
+                    task.append(self.creat_charter(key))
+        else:
+            for key in self.profile.characters_preview[:8]:
+                task.append(self.creat_charter(key))
         
         self.charter = await asyncio.gather(*task)
     
     async def creat_avatar(self):
         self.background_profile_avatar = Image.new("RGBA", (625, 319), (0,0,0,0))
         background_avatar = Image.new("RGBA", (168, 168), (0,0,0,0))
-        if self.profile.avatar.icon is None:
-            avatar = git.DEFAULT_AVATAR
+        if self.profile.avatar:
+            avatar = "https://enka.network" + pfp_data[str(self.profile.avatar.id)]["IconPath"]
         else:
-            avatar = self.profile.avatar.icon.url
-            
-        avatar,font_20,maska,ab_ac,desc_frame = await asyncio.gather(pill.get_dowload_img(avatar, size= (168,168)),pill.get_font(20),_of.avatar_maska,_of.icons,_of.desc_frame)
+            avatar = "https://enka.network/ui/UI_AvatarIcon_PlayerGirl_Circle.png"
+        try:
+            avatar,font_20,maska,ab_ac,desc_frame = await asyncio.gather(pill.get_dowload_img(avatar, size= (168,168)),pill.get_font(20),_of.avatar_maska,_of.icons,_of.desc_frame)
+        except:
+            avatar = "https://enka.network/ui/UI_AvatarIcon_PlayerGirl_Circle.png"
+            avatar,font_20,maska,ab_ac,desc_frame = await asyncio.gather(pill.get_dowload_img(avatar, size= (168,168)),pill.get_font(20),_of.avatar_maska,_of.icons,_of.desc_frame)
         background_avatar.paste(avatar,(0,0),maska.convert("L"))
     
         self.background_profile_avatar.alpha_composite(background_avatar,(19,44))
@@ -102,15 +112,18 @@ class ProfileCard:
     
     async def build(self):
         self.background_profile.alpha_composite(self.background_profile_avatar,(23,19))
-        x,y = 15,450  
+        x,y = 15,450
+        if len(self.charter)>8:
+            y-=90
         for i, key in enumerate(self.charter):
             self.background_profile.alpha_composite(key,(x,y))
             x += 168
-            if i == 3:
+            if i in [3, 7]:
                 x = 15
                 y += 237
         logo = await _of.logo
-        self.background_profile.alpha_composite(logo,(18,978))
+        logo = logo.resize((int(logo.size[0]/2),int(logo.size[1]/2)))
+        self.background_profile.alpha_composite(logo,(18,1048))
                 
     async def start(self):
         

@@ -72,7 +72,7 @@ class Akasha:
     
     async def start(self, card, teample):
         rank = await self.get_stats(card["id"])
-        if not rank is None:
+        if rank is not None and rank.akasha:
             card["card"] = await akasha_rank.AkashaCreat(card["card"],teample,rank.akasha[0],self.uid).start()
         
         return card  
@@ -161,7 +161,7 @@ class ENC:
             "character_name": self.character_name,
             "pickle_size": self.print_size
         }
-                
+        pass
         return enkacardCread.EnkaCard(**enc_card)
     
     async def creat(self, template = 1, akasha = False, snow = False):
@@ -236,7 +236,7 @@ class ENC:
         
         return self.sorting(result)
 
-    async def profile(self,teamplate = 1, card = False,background = None):
+    async def profile(self,teamplate = 1, card = False,background = None, compare=False):
         
         for key in self.enc.characters:
             self.character_ids.append(key.id)
@@ -268,9 +268,9 @@ class ENC:
 
         if card:
             if int(teamplate) == 1:
-                data["card"] = await profile_teample_one.ProfileCard(self.enc.player,self.translateLang,self.character_art,self.hide_uid,self.uid,background).start()
+                data["card"] = await profile_teample_one.ProfileCard(self.enc.player,self.translateLang,self.character_art,self.hide_uid,self.uid,background, compare=compare).start()
             elif int(teamplate) == 2:
-                data["card"] = await profile_teample_two.ProfileCard(self.enc.player,self.translateLang,self.character_art,self.hide_uid,self.uid,background).start()
+                data["card"] = await profile_teample_two.ProfileCard(self.enc.player,self.translateLang,self.character_art,self.hide_uid,self.uid,background,compare=compare).start()
             if self.save:
                 await save_card(self.uid, data["card"], "profile")
         

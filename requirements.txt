@@ -3,6 +3,7 @@ aiohttp
 asyncio
 cachetools
 cloudpickle
+curl_cffi
 enkanetworkv2.py
 python-magic
 python-magic-bin

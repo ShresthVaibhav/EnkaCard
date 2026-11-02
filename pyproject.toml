@@ -19,6 +19,7 @@ numpy = "*"
 more-itertools = "*"
 pydantic = "*"
 aiofiles = "*"
+curl_cffi = "*"
 matplotlib = "*"
 python-magic = { platform = "windows", version = "^0.4.27" }
 python-magic-bin = { platform = "windows", version = "^0.4.14" }

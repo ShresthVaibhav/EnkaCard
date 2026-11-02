@@ -3,8 +3,8 @@ import asyncio
 import json
 
 
-DATA_URL = "https://gitlab.com/Dimbreath/AnimeGameData/-/raw/master/{FOLDER}/{value}"
-LANG_URL = "https://gitlab.com/Dimbreath/AnimeGameData/-/raw/master/{LANG_FOLDER}/TextMap{key}.json"
+DATA_URL = "https://gitlab.com/Dimbreath/AnimeGameData2/-/raw/main/{FOLDER}/{value}"
+LANG_URL = "https://gitlab.com/Dimbreath/AnimeGameData2/-/raw/main/{LANG_FOLDER}/TextMap{key}.json"
 _PATH = None
 
 from .pathfinding import search
@@ -93,6 +93,8 @@ async def creat_costume():
     data = {}
 
     for key in _DATA["COSTUME"]:
+        if "frontIconName" not in key:
+            continue
         data[key["skinId"]] = {"iconName": key["frontIconName"], "sideIconName": key["sideIconName"], "nameTextMapHash": key["nameTextMapHash"]}
     
     save_json("costumes.json", data)
@@ -108,7 +110,7 @@ async def creat_skill():
     data = {}
     
     for key in _DATA["SKILLS"]:
-        if key["skillIcon"]:
+        if "skillIcon" in key and key["skillIcon"]:
             data[key["id"]] = {"nameTextMapHash": key["nameTextMapHash"], "skillIcon": key["skillIcon"], "proudSkillGroupId": key.get("proudSkillGroupId","")}
             _DATA_LANG["skills"].append(str(key["nameTextMapHash"]))
     save_json("skills.json", data)
@@ -138,7 +140,8 @@ async def creat_characrer():
    
     skill_data = {}
     for key in _DATA["SKILLS"]:
-        skill_data[key["id"]] = {"nameTextMapHash": key["nameTextMapHash"], "skillIcon": key["skillIcon"], "proudSkillGroupId": key.get("proudSkillGroupId",""), "costElemType": key.get("costElemType", None), "forceCanDoSkill": key.get("forceCanDoSkill", None)}
+        if "skillIcon" in key:
+            skill_data[key["id"]] = {"nameTextMapHash": key["nameTextMapHash"], "skillIcon": key["skillIcon"], "proudSkillGroupId": key.get("proudSkillGroupId",""), "costElemType": key.get("costElemType", None), "forceCanDoSkill": key.get("forceCanDoSkill", None)}
    
     for key in _DATA["AVATAR"]:
         if key["skillDepotId"] == 101 or \
@@ -151,32 +154,32 @@ async def creat_characrer():
         if key["iconName"].endswith("_PlayerBoy") or key["iconName"].endswith("_PlayerGirl"):
             new_data =  {"nameTextMapHash": key["nameTextMapHash"], "iconName": key["iconName"], "sideIconName": key["sideIconName"], "qualityType": key["qualityType"], 
                            "costElemType": "", "skills": [], "talents": [] }
-            
-            for skill_id in key["candSkillDepotIds"]:
-                new_data.update({"skills": [],"talents": []})
-                
-                depot = sub_data.get(skill_id)
-                if depot and depot["id"] != 101:
-                    for skill in depot["skills"]:
-                        if skill <= 0:
-                            continue
-                        new_data["skills"].append(skill)
+            if "candSkillDepotIds" in key:
+                for skill_id in key["candSkillDepotIds"]:
+                    new_data.update({"skills": [],"talents": []})
+                    
+                    depot = sub_data.get(skill_id)
+                    if depot and depot["id"] != 101:
+                        for skill in depot["skills"]:
+                            if skill <= 0:
+                                continue
+                            new_data["skills"].append(skill)
+                            
+                        element_id = skill_data.get(depot.get("energySkill"))
                         
-                    element_id = skill_data.get(depot.get("energySkill"))
-                    
-                    new_data.update({
-                            "costElemType": element_id.get("costElemType")
+                        new_data.update({
+                                "costElemType": element_id.get("costElemType")
+                            })
+                        
+                        new_data["skills"].append(int(depot.get('energySkill')))   
+    
+                        new_data.update({
+                            "talents": [x for x in depot["talents"] if x > 0],
                         })
-                    
-                    new_data["skills"].append(int(depot.get('energySkill')))   
-
-                    new_data.update({
-                        "talents": [x for x in depot["talents"] if x > 0],
-                    })
-                    
-                    data[str(key["id"]) + "-" + str(depot["id"])] = new_data.copy()
-  
-            data[str(key["id"])] = new_data.copy()
+                        
+                        data[str(key["id"]) + "-" + str(depot["id"])] = new_data.copy()
+      
+                data[str(key["id"])] = new_data.copy()
         else:
             data[key["id"]] = {"nameTextMapHash": key["nameTextMapHash"], "iconName": key["iconName"], "sideIconName": key["sideIconName"], "qualityType": key["qualityType"], 
                            "costElemType": "", "skills": [], "talents": [] }
@@ -222,6 +225,7 @@ async def creat_lang():
     task = []
     for key in LANGKEY:
         url = LANG_URL.format(LANG_FOLDER = LANG_FOLDER, key = key)
+        print(url)
         task.append(fetch_data(url, key, lang= True))
     print(">> Start dowload lang")
     await asyncio.gather(*task)

@@ -122,7 +122,7 @@ class Creat:
     
     async def collect_weapon(self):
         self.weapon = await weapon.Weapon(self.character.equipments[-1], self.lang).start()
-    
+
     async def collect_constant(self):
         self.background_constant = Image.new("RGBA", (108, 672), (0,0,0,0))
         task = []
@@ -140,7 +140,12 @@ class Creat:
     async def collect_stat(self):
         self.background_stat = await stat.Stat(self.character.stats, self.prop, self.character.element.value).start()
         
-    async def start(self):       
+    async def start(self):
+        try:
+            from enkacard.namecard_ctx import fetch_and_set_for_char
+            await fetch_and_set_for_char(self.character.id)
+        except Exception:
+            pass
         tasks = [self.collect_artifact(), self.creat_name_user(),self.collect_background()]
         await asyncio.gather(*tasks)
         tasks = [

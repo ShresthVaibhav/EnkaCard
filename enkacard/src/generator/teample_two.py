@@ -98,7 +98,7 @@ class Creat:
     async def creat_diagram(self):
         user_diagram = False
         dataAkasha = await AkashaCreat(uid = self.uid).get_info_character(self.character.id)
-        if not dataAkasha["chartsData"] is None: 
+        if dataAkasha and dataAkasha.get("chartsData"):
             chartsData = dataAkasha["chartsData"]["charts1pMetadata"][1]["avgStats"]
         else:
             user_diagram = True
@@ -195,6 +195,11 @@ class Creat:
         await self.add_logo()
     
     async def start(self,snow):
+        try:
+            from enkacard.namecard_ctx import fetch_and_set_for_char
+            await fetch_and_set_for_char(self.character.id)
+        except Exception:
+            pass
         await asyncio.gather(self.collect_background(),self.collect_weapon(),self.collect_constant(),self.collect_artifact(),self.collect_sets(),self.creat_name(),
                              self.creat_name_user(),self.creat_diagram(),self.creat_stat(),self.creat_skill())
         

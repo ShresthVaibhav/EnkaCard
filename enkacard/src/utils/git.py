@@ -94,15 +94,22 @@ mapping = {
 
 class ImageCache:
     @classmethod
-    async def download_image(cls, url):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                try:
-                    image = await response.read()
-                finally:
-                    await session.close()
-                    
-        return BytesIO(image)
+    async def download_image(cls, url, retries=3):
+        last_error = None
+        for attempt in range(retries):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as response:
+                        response.raise_for_status()
+                        image = await response.read()
+                data = BytesIO(image)
+                data.seek(0)
+                Image.open(data).verify()
+                data.seek(0)
+                return data
+            except Exception as e:
+                last_error = e
+        raise ValueError(f"Failed to download valid image from {url}: {last_error}")
 
     @classmethod
     async def _load_image(cls, name):

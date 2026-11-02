@@ -20,6 +20,17 @@ class _LazyPfps:
 
 pfp_data = _LazyPfps()
 
+
+def avatar_url(avatar):
+    try:
+        return "https://enka.network" + pfp_data[str(avatar.id)]["IconPath"]
+    except Exception:
+        pass
+    icon = getattr(avatar, "icon", None)
+    if icon is not None and getattr(icon, "url", None):
+        return icon.url
+    return git.DEFAULT_AVATAR if hasattr(git, "DEFAULT_AVATAR") else "https://enka.network/ui/UI_AvatarIcon_PlayerGirl_Circle.png"
+
 class ProfileCard:
     def __init__(self,profile,lang,img,hide,uid,background,compare) -> None:
         self.profile = profile
@@ -60,7 +71,7 @@ class ProfileCard:
         background = Image.new("RGBA", (757, 156), (0,0,0,0))
         background_avatar = Image.new("RGBA", (120, 120), (0,0,0,0))
         if self.profile.avatar:
-            avatar = "https://enka.network" + pfp_data[str(self.profile.avatar.id)]["IconPath"]
+            avatar = avatar_url(self.profile.avatar)
         else:
             avatar = "https://enka.network/ui/UI_AvatarIcon_PlayerGirl_Circle.png"
         maska,ab_ac = await asyncio.gather(_of.avatar_mask, _of.ab_ac)

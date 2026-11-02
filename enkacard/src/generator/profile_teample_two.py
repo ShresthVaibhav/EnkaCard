@@ -2,7 +2,7 @@ import asyncio
 import random
 from PIL import ImageDraw,Image,ImageChops
 from ..utils import pill, git, options
-from .profile_teample_one import pfp_data
+from .profile_teample_one import pfp_data, avatar_url
 
 _of = git.ImageCache()
 
@@ -73,7 +73,7 @@ class ProfileCard:
         self.background_profile_avatar = Image.new("RGBA", (625, 319), (0,0,0,0))
         background_avatar = Image.new("RGBA", (168, 168), (0,0,0,0))
         if self.profile.avatar:
-            avatar = "https://enka.network" + pfp_data[str(self.profile.avatar.id)]["IconPath"]
+            avatar = avatar_url(self.profile.avatar)
         else:
             avatar = "https://enka.network/ui/UI_AvatarIcon_PlayerGirl_Circle.png"
         try:

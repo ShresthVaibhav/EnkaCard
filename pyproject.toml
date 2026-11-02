@@ -11,10 +11,11 @@ homepage = "https://github.com/DEViantUA/EnkaNetworkCard/wiki/Dokumentation-enka
 
 [tool.poetry.dependencies]
 python = "^3.7"
-Pillow = "^10.0.1"
+Pillow = ">=10.0.1"
 "enkanetwork.py" = "^1.4.0"
 cachetools = "^5.2.0"
 asyncache  = "^0.3.1"
+curl_cffi = "*"
 
 
 [build-system]

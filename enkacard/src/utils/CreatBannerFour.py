@@ -12,12 +12,12 @@ positionStatsIcon = [
     (123,73),
     (121,103),
     (119,133),
-    (116,163), 
+    (116,163),
     (112,193),
     (109,223),
     (106,253)
-]    
-    
+]
+
 
 positionStatsText = [
     (168,16),
@@ -149,7 +149,7 @@ class Mini:
         bgTwo = bg.copy()
         nameCharter = nameCharter.split("Costume")[0]
         if nameCharter in ["PlayerGirl","PlayerBoy"]:
-            linkImgCard = "https://api.ambr.top/assets/UI/namecard/UI_NameCardPic_0_P.png"
+            linkImgCard = "https://gi.yatta.moe/assets/UI/UI_AvatarIcon_PlayerGirl.png"
         else:
             linkImgCard = f"https://enka.network/ui/UI_NameCardPic_{nameCharter}_P.png"
         try:
@@ -177,7 +177,7 @@ class Mini:
         dopStat = 0
 
         d = ImageDraw.Draw(bg)
-        centrName,fonts = await centrText(name, witshRam = 236, razmer = 15, start = 97) 
+        centrName,fonts = await centrText(name, witshRam = 236, razmer = 15, start = 97)
         d.text((centrName,10), str(name), font= fonts, fill=coloring)
         d.text((centrName,10), str(name), font= fonts, fill=coloring)
         d.text((137,39), str(baseAtt), font= fontSize(14), fill=coloring)
@@ -196,7 +196,7 @@ class Mini:
             d.text((240,39), f"{dopStat}%", font= fontSize(14), fill=coloring)
         else:
             d.text((240,39), str(dopStat), font= fontSize(14), fill=coloring)
-        
+
         d.text((278,65), str(lvlUp), font= fontSize(14), fill=(254,218,154,255))
 
         d.text((127,65), str(lvl), font= fontSize(14), fill=coloring)
@@ -213,6 +213,10 @@ class Mini:
         talantsBgGold = talantsBg.resize((62,61))
         talantsBg = talantsBg.resize((62,61))
         for key in characters.skills:
+            if key.level == 0:
+                continue
+            if i >= len(positionTalantsFrame):
+                break
             if key.level > 9:
                 bg.alpha_composite(talantsBgGold,positionTalantsFrame[i])
             else:
@@ -223,7 +227,7 @@ class Mini:
             bg.alpha_composite(imagesIconTalants, positionTalantsIcon[i])
 
             d = ImageDraw.Draw(bg)
-            
+
             if len(str(key.level)) == 2:
                 d.text((positionTalantsText[i][0]-1,positionTalantsText[i][1]), str(key.level), font = fontSize(14), fill=(250,188,87,255))
             else:
@@ -278,7 +282,7 @@ class Mini:
         lvlText = f"{lvl}: {characters.level}/90 |"
         centrName,fonts = await centrText(lvlText, witshRam = 151, razmer = 17,start = 75)
         d.text((centrName,543), lvlText, font= fonts, fill=coloring)
-        positionIconFriends = centrName + fonts.getsize(lvlText)[0] + 7
+        positionIconFriends = int(centrName + fonts.getlength(lvlText) + 7)
 
         d.text((positionIconFriends+27,540), str(characters.friendship_level), font = fontSize(20), fill=coloring)
         bg.alpha_composite(openFile.FRENDS,(positionIconFriends,536))
@@ -363,14 +367,14 @@ async def stats(g,AttributeBg):
 
         i += 1
     return AttributeBg
-    
+
 
 async def creatArtifact(infpart,ArtifactBg,imageStats):
     ArtifactUp = openFile.FRAME_ART.copy()
     artimg = await imagSize(link = infpart.detail.icon.url,size = (65,72))
     ArtifactBg.alpha_composite(artimg,(3,-8))
     ArtifactBg.alpha_composite(ArtifactUp,(0,0))
-    
+
     d = ImageDraw.Draw(ArtifactBg)
     if str(infpart.detail.mainstats.type) == "DigitType.PERCENT":
         val = f"{infpart.detail.mainstats.value}%"
@@ -410,9 +414,9 @@ async def artifactAdd(characters,element):
         if not imageStats:
             continue
         resurs.append(await creatArtifact(key,AttributeBg,imageStats))
-        
+
     return resurs
-    
+
 async def generationFour(items,assets,lang, mini = True, userName = "User", uid = "UID: Hide",background = None, cards = None):
     if mini:
         if background == None:
@@ -462,7 +466,7 @@ async def generationFour(items,assets,lang, mini = True, userName = "User", uid 
                 BGT.alpha_composite(ec[0],positionC[ran])
                 BGT.alpha_composite(ec[1],positionW[ran])
                 ran += 1
-                
+
         d = ImageDraw.Draw(BGT)
         d.text((77,901), str(userName), font= fontSize(26), fill=coloring)
         d.text((77,935), str(uid), font= fontSize(26), fill=coloring)
@@ -501,7 +505,7 @@ async def generationFour(items,assets,lang, mini = True, userName = "User", uid 
                 if not characters.name in result:
                     result[characters.name] = {"img": cards[characters.name]["img"].copy(), "id": characters.id}
             else:
-                
+
                 person = assets.character(characters.id)
                 task = []
                 task.append(Mini().creat_bg(person.rarity,characters.element.value,person.images.banner.url,characters,lang["lvl"],charactersImg))
@@ -514,7 +518,7 @@ async def generationFour(items,assets,lang, mini = True, userName = "User", uid 
                 ec = await asyncio.gather(*task)
 
                 BGT_O.alpha_composite(ec[2],(278,408))
-                
+
                 BGT_O.alpha_composite(ec[1],(94,0))
                 for key in ec[3]:
                     BGT_O.alpha_composite(key,positionArtifact[i])
@@ -523,10 +527,10 @@ async def generationFour(items,assets,lang, mini = True, userName = "User", uid 
                 if not characters.name in result:
                     result[characters.name] = {"img": BGT_O, "id": characters.id}
         i = 0
-        
+
         for key in result:
             BGT.alpha_composite(result[key]["img"],(positionResultat[i]))
-            i += 1            
+            i += 1
 
         d = ImageDraw.Draw(BGT)
         d.text((60,921), str(userName), font= fontSize(26), fill=coloring)

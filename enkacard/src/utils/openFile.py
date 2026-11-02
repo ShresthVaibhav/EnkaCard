@@ -6,16 +6,41 @@ from weakref import WeakValueDictionary
 from pathlib import Path
 
 lock = threading.Lock()
-cache = WeakValueDictionary()
+cache = {}
 assets = Path(__file__).parent.parent / 'assets'
 
 
 font = str(assets / 'font' / 'Genshin_Impact.ttf')
+fontKH = str(assets / 'font' / 'GSEnochian.ttf')
 
-
+def change_Font(x):
+    global font
+    if x == 0:
+        font = str(assets / 'font' / 'Genshin_Impact.ttf')
+    else:
+        font = str(assets / 'font' / 'GSEnochian.ttf')
 
 
 mapping = {
+    'bg_1stars': assets/'teapmleArt'/'bg_1stars.png',
+    'bg_2stars': assets/'teapmleArt'/'bg_2stars.png',
+    'bg_3stars': assets/'teapmleArt'/'bg_3stars.png',
+    'bg_4stars': assets/'teapmleArt'/'bg_4stars.png',
+    'bg_5stars': assets/'teapmleArt'/'bg_5stars.png',
+    'frame_artifact_rate': assets/'teapmleArt'/'frame.png',
+    'maska_artifact_rate': assets/'teapmleArt'/'maska.png',
+
+    'proc_0_rate': assets/'teapmleArt'/'proc_0_rate.png',
+    'proc_25_rate': assets/'teapmleArt'/'proc_25_rate.png',
+    'proc_50_rate': assets/'teapmleArt'/'proc_50_rate.png',
+    'proc_75_rate': assets/'teapmleArt'/'proc_75_rate.png',
+    'proc_100_rate': assets/'teapmleArt'/'proc_100_rate.png',
+    'proc_None_rate': assets/'teapmleArt'/'proc_None_rate.png',
+    'maska_charter_art': assets/'teapmleArt'/'maska_charter_art.png',
+    'bg_charter_art': assets/'teapmleArt'/'bg_charter_art.png',
+    
+
+
     #===========================TEAMPLE SEVEN===============================
     'ANEMO_SEVEN': assets/'teapmleSeven'/'background'/'ANEMO.png',
     'CRYO_SEVEN': assets/'teapmleSeven'/'background'/'CRYO.png',
@@ -32,6 +57,7 @@ mapping = {
     'MASKA_ADAPT': assets/'teapmleSeven'/'background'/'maska_adapt.png',
     'Triangle': assets/'teapmleSeven'/'background'/'Triangle.png',
     'max_lvl': assets/'teapmleSeven'/'background'/'max_lvl.png',
+    'max_lvl_kh': assets/'teapmleSeven'/'background'/'max_lvl_kh.png',
 
     'ART_bg_SEVEN': assets/'teapmleSeven'/'artifact'/'bg.png',
     'ART_frame_SEVEN': assets/'teapmleSeven'/'artifact'/'frame.png',
@@ -64,7 +90,6 @@ mapping = {
 
     'SIGNATURE4': assets/'SIGNATURE4.png',
     'SIGNATURE4_ARTIST': assets/'SIGNATURE4_ARTIST.png',
-
 
 
     #==========================================================
@@ -227,8 +252,9 @@ mapping = {
 
     'AttributeTeampleTwo': assets/'teapmleTwo'/'stats'/'STATS.png',
     'AttributeBgTeampleTwo': assets/'teapmleTwo'/'stats'/'STATS_FRAME.png',
-
+    'cocologo': assets / 'teapmleTwo' / 'infoUser' / 'cocologo.png',
     'infoUserFrameTeampleTwo': assets/'teapmleTwo'/'infoUser'/'INFO_USER_FRAMES.png',
+    'infoUserFrameTeampleTwoTwo': assets / 'teapmleTwo' / 'infoUser' / 'INFO_USER_FRAMES2.png',
     'infoUserBgTeampleTwo': assets/'teapmleTwo'/'infoUser'/'BG.png',
     'infoUserMaskaTeampleTwo': assets/'teapmleTwo'/'infoUser'/'MASKA_BANNER.png',
     'infoUserMaskaAvatarTeampleTwo': assets/'teapmleTwo'/'infoUser'/'MASKA_AVATAR.png',

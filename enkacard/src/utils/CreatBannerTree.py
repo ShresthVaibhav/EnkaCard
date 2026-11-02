@@ -9,14 +9,11 @@ from .FunctionsPill import imagSize,centrText,imgD
 from .options import *
 from . import openFile
 
-async def characterBackground(person,element,imgs,adapt,splash = None):
+async def characterBackground(element,imgs,splash):
     if imgs:
-        frame = userImageTree(imgs, element = element, adaptation = adapt)
+        frame = userImageTree(imgs, element = element, adaptation = True)
     else:
-        if splash:
-            banner = await imagSize(link = splash,size = (2351,1168))
-        else:
-            banner = await imagSize(link = person.images.banner.url,size = (2351,1168))
+        banner = await imagSize(link = splash,size = (2351,1168))
         frame = maskaAdd(element, banner, teample = 3)
     return frame
 
@@ -35,6 +32,8 @@ async def talants(characters):
     count = 0
     tallantsRes = []
     for key in characters.skills:
+        if key.level == 0:
+            continue
         if key.level > 9:
             talantsBg = openFile.TalantsFrameT_GoldTeampleTree.copy()
         else:
@@ -165,16 +164,16 @@ async def stats(AttributeBg,characters,assets):
                 value = str(math.ceil(key[1].value))
             else:
                 value = f"{round(key[1].value * 100, 1)}%"
-            x,y = fontSize(24).getsize(value)
+            x = fontSize(24).getlength(value)
             d.text((pos[0]+520-x,pos[1]), value, font = fontSize(24), fill=coloring)
             d.text((pos[0]+41,pos[1]), str(txt), font = fontSize(18), fill=coloring)
-            if key[0] in dopStatAtribute:
+            if key[0] in dopStatAtribute and dopStatAtribute[key[0]] in dopval:
                 dopStatVal = int(dopval[dopStatAtribute[key[0]]])
                 dopStatValArtifact = int(key[1].value - dopval[dopStatAtribute[key[0]]])
                 if dopStatValArtifact != 0:
-                    xx,y = fontSize(15).getsize(f"+{dopStatValArtifact}")
+                    xx = fontSize(15).getlength(f"+{dopStatValArtifact}")
                     d.text((pos[0]+520-xx,pos[1]+30),f"+{dopStatValArtifact}", font = fontSize(15), fill=(141,231,141))
-                    x,y = fontSize(15).getsize(f"+{dopStatVal}")
+                    x = fontSize(15).getlength(f"+{dopStatVal}")
                     d.text((pos[0]+520-x-xx,pos[1]+30),str(dopStatVal), font = fontSize(15), fill=coloring)
             pos = (pos[0],pos[1]+59)
     for key in g:
@@ -197,7 +196,7 @@ async def stats(AttributeBg,characters,assets):
             value = str(math.ceil(key[1].value))
         else:
             value = f"{round(key[1].value * 100, 1)}%"
-        x,y = fontSize(24).getsize(value)
+        x = fontSize(24).getlength(value)
         d.text((pos[0]+520-x,pos[1]), value, font = fontSize(24), fill=coloring)
         d.text((pos[0]+41,pos[1]), str(txt), font = fontSize(18), fill=coloring)
         pos = (pos[0],pos[1]+53)
@@ -244,7 +243,7 @@ async def creatArtifact(infpart,imageStats):
         val = f"{infpart.detail.mainstats.value}%"
     else:
         val = infpart.detail.mainstats.value
-    x,y = fontSize(32).getsize(str(val))
+    x = fontSize(32).getlength(str(val))
     d.text((174-x,56), str(val), font= fontSize(32), fill=coloring)
     ArtifactBg.alpha_composite(imageStats,(150,20))
     d.text((136,100), f"+{infpart.level}", font= fontSize(17), fill=coloring)
@@ -301,14 +300,10 @@ async def itog(listArt,talansRes,rezConstant,weaponRes,rezArt,signatureRes):
 
     return res
 
-async def generationTree(characters,assets,img,adapt,signatureRes,lvl, splash):
-    person = assets.character(characters.id)
+async def generationTree(characters,assets,img,signatureRes,lvl):
     task = []
     try:
-        if splash:
-            task.append(characterBackground(person,characters.element.value,img,adapt,characters.image.banner.url))
-        else:
-            task.append(characterBackground(person,characters.element.value,img,adapt))
+        task.append(characterBackground(characters.element.value,img,characters.image.banner.url))
         task.append(talants(characters))
         task.append(constant(characters))
         task.append(weapon(characters.equipments[-1],lvl))

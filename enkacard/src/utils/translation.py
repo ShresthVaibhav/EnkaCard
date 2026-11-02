@@ -13,7 +13,8 @@ supportLang= {"en":"en",
         "es":"es",
         "de":"de",
         "chs":"zh-cn",
-        "cht":"zh-tw"
+        "cht":"zh-tw",
+        "kh":"en"
     }
 
 translationLang = {"en":{"lvl": "LVL", "AR":"AR", "WL":"WL", "AC": "Achievements", "AB": "Abyss"}, 

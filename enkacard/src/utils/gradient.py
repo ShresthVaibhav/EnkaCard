@@ -1,6 +1,6 @@
 # Copyright 2022 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw,ImageStat
 import random
 from collections import namedtuple
 from math import sqrt
@@ -45,7 +45,21 @@ def vertGradient(image, rect, color_func, color_palette):
         color = color_func(minval, maxval, val, color_palette)
         draw.line([(rect.min.x, y), (rect.max.x, y)], fill=color)
 
-def userAdaptGrandient(userImg, size = (1502, 787), left = False):
+
+def _get_light_pixel_color(pixel_color):
+    factor = 1.5
+    r, g, b = pixel_color
+    r = min(int(r * factor), 255)
+    g = min(int(g * factor), 255)
+    b = min(int(b * factor), 255)
+    
+    return (r, g, b)        
+
+def light_level(img):
+    stat = ImageStat.Stat(img)
+    return stat.mean[0]
+
+def userAdaptGrandient(userImg, size = (2, 787), left = False):
     if left:
         userImg = userImg.crop((0,0,userImg.size[0]+3-userImg.size[0],userImg.size[1]))
     else:
@@ -54,34 +68,32 @@ def userAdaptGrandient(userImg, size = (1502, 787), left = False):
     indx = random.choice([1,30])
     color_palette = (rgb[indx],rgb[int(len(rgb)/2)],rgb[len(rgb)-100])
     color_palette = list(color_palette)
-    if color_palette[0][0] > 209 and color_palette[0][1] > 209 and color_palette[0][2] >  209:
-        color_palette[0] = (209,209,209)
-    if color_palette[1][0] > 209 and color_palette[1][1] > 209 and color_palette[1][2] >  209:
-        color_palette[1] = (209,209,209)
-    if color_palette[2][0] > 209 and color_palette[2][1] > 209 and color_palette[2][2] >  209:
-        color_palette[2] = (209,209,209)
+    
+    for i in range(3):
+        text_pixel = Image.new("RGB", (1, 1), color=color_palette[i])
+        ll = light_level(text_pixel)
+        if ll < 45:
+            color_palette[i] = _get_light_pixel_color(color_palette[i])
+        
     color_palette = tuple(color_palette)
     region = Rect(0, 0, size[0], size[1])
     image = Image.new("RGBA", size, (0,0,0,0))  
+    
     vertGradient(image, region, gradientColor, color_palette) 
     return image
 
 def frameAdapt(color_palette, size = (388, 621)):
     color_palette = list(color_palette)
-    if color_palette[0][0] > 209 and color_palette[0][1] > 209 and color_palette[0][2] >  209:
-        color_palette[0] = (209,209,209)
-    if color_palette[1][0] > 209 and color_palette[1][1] > 209 and color_palette[1][2] >  209:
-        color_palette[1] = (209,209,209)
-    if color_palette[2][0] > 209 and color_palette[2][1] > 209 and color_palette[2][2] >  209:
-        color_palette[2] = (209,209,209)
+    for i in range(3):
+        text_pixel = Image.new("RGB", (1, 1), color=color_palette[i])
+        ll = light_level(text_pixel)
+        if ll < 45:
+            color_palette[i] = _get_light_pixel_color(color_palette[i])
     color_palette = tuple(color_palette)
     region = Rect(0, 0, size[0], size[1])
     image = Image.new("RGBA", size, (0,0,0,0))  
     vertGradient(image, region, gradientColor, color_palette) 
     return image
-
-
-
 
 
 Point = namedtuple('Point', ('coords', 'n', 'ct'))
@@ -154,10 +166,9 @@ async def colorBg(img):
     a = colorz(img, n = 2)
     a = list(a)[0].lstrip('#')
     color_palette = list(int(a[i:i+2], 16) for i in (0, 2, 4))
-    if color_palette[0]> 209:
-        color_palette[0] = 209
-    if color_palette[1]> 209:
-        color_palette[1] = 209
-    if color_palette[1]> 209:
-        color_palette[1] = 209
+    for i in range(3):
+        text_pixel = Image.new("RGB", (1, 1), color=color_palette[i])
+        ll = light_level(text_pixel)
+        if ll < 45:
+            color_palette[i] = _get_light_pixel_color(color_palette[i])
     return tuple(color_palette)

@@ -43,7 +43,7 @@ async def weapon(characters,lvlName):
     stars = await gen.starFive(characters.detail.rarity)
     image = await imagSize(link = characters.detail.icon.url,size = (147,146))
 
-    WeaponBg.alpha_composite(image,(63,4))
+    WeaponBg.alpha_composite(image,(60,4))
     WeaponBg.alpha_composite(stars,(36,141))
     
     d.text((212,28), str(name), font= gen.fontSize(22), fill=options.coloring) 
@@ -57,7 +57,6 @@ async def weapon(characters,lvlName):
     else:
         d.text((245,100), str(dopStat), font= gen.fontSize(20), fill=(255,212,130,255))
     return WeaponBg
-
 
 
 async def stats(characters,assets):
@@ -85,20 +84,20 @@ async def stats(characters,assets):
                 value = f"{round(key[1].value * 100, 1)}%"
 
             d.text(posText, str(txt), font = gen.fontSize(22), fill=options.coloring)
-            xx,y = gen.fontSize(22).getsize(str(value))
+            xx = gen.fontSize(22).getlength(str(value))
             posValueX = (posValue[0] - xx,posValue[1])
             d.text(posValueX, value, font = gen.fontSize(22), fill= options.coloring)
 
-            if key[0] in gen.dopStatAtribute:
+            if key[0] in gen.dopStatAtribute and options.dopStatAtribute[key[0]] in dopval:
                 dopStatVal = int(dopval[options.dopStatAtribute[key[0]]])
                 dopStatValArtifact = int(key[1].value - dopval[options.dopStatAtribute[key[0]]])
                 if dopStatValArtifact != 0:
-                    dopArtx,y = gen.fontSize(18).getsize(f"+{dopStatValArtifact}")
+                    dopArtx = gen.fontSize(18).getlength(f"+{dopStatValArtifact}")
                     
                     positionDopArt = (posValue[0] - dopArtx ,posValue[1]+25)
                     d.text(positionDopArt,f"+{dopStatValArtifact}", font = gen.fontSize(18), fill=(0,255,156,255))
 
-                    dopValx,y = gen.fontSize(18).getsize(str(dopStatVal))
+                    dopValx = gen.fontSize(18).getlength(str(dopStatVal))
                     positionDopVal = (positionDopArt[0] - dopValx - 18,positionDopArt[1])
                     d.text(positionDopVal,str(dopStatVal), font = gen.fontSize(18), fill=options.coloring)
 
@@ -126,7 +125,7 @@ async def stats(characters,assets):
             value = str(math.ceil(key[1].value))
         else:
             value = f"{round(key[1].value * 100, 1)}%"
-        xx,y = gen.fontSize(22).getsize(str(value))
+        xx = gen.fontSize(22).getlength(str(value))
         posValueX = (posValue[0] - xx,posValue[1])
         d.text(posValueX, value, font = gen.fontSize(22), fill= options.coloring)
         d.text(posText, str(txt), font = gen.fontSize(22), fill= options.coloring)
@@ -164,6 +163,8 @@ async def constant(characters):
 async def talants(skills):
     tallantsRes = []
     for key in skills:
+        if key.level == 0:
+            continue
         if key.level > 9:
             talantsBg = of.BIG_LVLTeampleFive.copy()
         else:
@@ -199,11 +200,11 @@ async def appendTalant(items,bg):
 async def infoCharter(characters,lvlName,element):
     bg = of.NAME_BANNERTeampleFive.copy()
     d = ImageDraw.Draw(bg)
-    xx,y = gen.fontSize(26).getsize(characters.name)
+    xx = gen.fontSize(26).getlength(characters.name)
     x = 182 - xx/2
     d.text((x,16), characters.name, font = gen.fontSize(26), fill= options.coloring)
     namLvl = f"{lvlName}: {characters.level}/90"
-    xx,y = gen.fontSize(22).getsize(namLvl)
+    xx = gen.fontSize(22).getlength(namLvl)
     x = 182 - xx/2
     d.text((x,61),namLvl,font = gen.fontSize(22), fill=options.coloring)
     element = await gen.charterElement(element)
@@ -262,7 +263,7 @@ async def artifact(characters):
             val = f"{infpart.detail.mainstats.value}%"
         else:
             val = infpart.detail.mainstats.value
-        x,y = gen.fontSize(37).getsize(str(val))
+        x = gen.fontSize(37).getlength(str(val))
         d.text((193-x-2,65), str(val), font= gen.fontSize(37), fill=(0,0,0,255))
         d.text((193-x,65), str(val), font= gen.fontSize(37), fill=options.coloring)
 
@@ -302,7 +303,6 @@ async def appendArtifact(items,bg):
     return bg
 
 
-
 async def build(frame,weapon,stat,info,const,talant,artf,set):
     frame.alpha_composite(weapon,(26,43))
     frame.alpha_composite(stat,(26,215))
@@ -314,16 +314,12 @@ async def build(frame,weapon,stat,info,const,talant,artf,set):
     
     return frame
 
-async def generationFive(characters,assets,img,lvl,splash,signatureRes):
-    person = assets.character(characters.id)
+async def generationFive(characters,assets,img,lvl,signatureRes):
     task = []
     if img != None:
         task.append(background(img,False,characters.element,signatureRes))
     else:
-        if splash:
-            task.append(background(characters.image.banner.url,True,characters.element,signatureRes))
-        else:
-            task.append(background(person.images.banner.url,True,characters.element,signatureRes))
+        task.append(background(characters.image.banner.url,True,characters.element,signatureRes))
     task.append(weapon(characters.equipments[-1],lvl))
     task.append(stats(characters,assets))
     task.append(infoCharter(characters,lvl,characters.element))

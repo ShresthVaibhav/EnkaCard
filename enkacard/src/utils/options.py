@@ -1,12 +1,52 @@
 # Copyright 2022 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
+from functools import lru_cache
 from PIL import ImageFont
 from . import openFile
+from enkanetwork import EnkaNetworkAPI
+import random
 
 coloring = (255,255,255,255)
 
+@lru_cache(maxsize=None)
 def fontSize(t):
     return ImageFont.truetype(openFile.font, t)
+
+async def get_charter_id(data):
+    data = [value.strip() for value in data.split(',') if value.strip()]
+
+    data = [value for value in data if value.isdigit()]
+    
+    if data == []:
+        return None
+    return data
+
+async def get_info_enka(uid,USER_AGENT,lang):
+    async with EnkaNetworkAPI(user_agent = USER_AGENT, lang=lang) as client:
+        result = await client.fetch_user(uid)
+        if result.characters:
+            return result
+        else:
+            return None
+
+async def get_uid(uids):
+    if type(uids) == int or type(uids) == str:
+        return str(uids).replace(' ', '').split(",")[0]
+    else:
+        return None
+        
+
+async def get_character_art(character_art):
+    processed_dict = {}
+    
+    for key, value in character_art.items():
+        if isinstance(value, list):
+            processed_dict[key] = random.choice(value)
+        else:
+            processed_dict[key] = value
+
+    return processed_dict
+
 
 #t32 = ImageFont.truetype(font, 32) fontSize(32)
 #t24 = ImageFont.truetype(font, 24) fontSize(24)

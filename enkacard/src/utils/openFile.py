@@ -252,7 +252,6 @@ mapping = {
 
     'AttributeTeampleTwo': assets/'teapmleTwo'/'stats'/'STATS.png',
     'AttributeBgTeampleTwo': assets/'teapmleTwo'/'stats'/'STATS_FRAME.png',
-    'cocologo': assets / 'teapmleTwo' / 'infoUser' / 'cocologo.png',
     'infoUserFrameTeampleTwo': assets/'teapmleTwo'/'infoUser'/'INFO_USER_FRAMES.png',
     'infoUserFrameTeampleTwoTwo': assets / 'teapmleTwo' / 'infoUser' / 'INFO_USER_FRAMES2.png',
     'infoUserBgTeampleTwo': assets/'teapmleTwo'/'infoUser'/'BG.png',
